@@ -28,6 +28,13 @@ def monitor_directory(path="."):
         for pattern in ignore_patterns:
             if fnmatch.fnmatch(path, pattern):
                 return True
+
+        parent_dir = os.path.dirname(path)
+        while parent_dir != path:
+            if parent_dir in files and should_ignore(parent_dir):
+                return True
+            parent_dir = os.path.dirname(parent_dir)
+
         return False
 
     def populate_ignore_patterns():
