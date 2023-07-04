@@ -26,7 +26,7 @@ def monitor_directory(path="."):
 
     def should_ignore(path):
         for pattern in ignore_patterns:
-            if fnmatch.fnmatch(path, pattern):
+            if fnmatch.fnmatch(path, pattern) or fnmatch.fnmatch(os.path.basename(path), pattern):
                 return True
         return False
 
@@ -34,12 +34,21 @@ def monitor_directory(path="."):
         ignore_path = os.path.join(path, ".gitignore")
         if os.path.exists(ignore_path):
             with open(ignore_path, "r") as f:
-                ignore_patterns.extend(f.read().splitlines())
+                lines = f.read().splitlines()
+                for line in lines:
+                    if line.startswith("/"):
+                        ignore_patterns.append(line[1:])
+                    else:
+                        ignore_patterns.append(line)
+                        ignore_patterns.append(line + "/*")
 
     def populate_files():
         for root, dirs, filenames in os.walk(path):
             if ".git" in dirs:
                 dirs.remove(".git")  # Skip the .git directory
+
+            if should_ignore(root):  # Skip monitoring if root directory is ignored
+                continue
 
             for filename in filenames:
                 full_path = os.path.join(root, filename)
