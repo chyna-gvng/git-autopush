@@ -36,11 +36,16 @@ def monitor_directory(path="."):
             with open(ignore_path, "r") as f:
                 lines = f.read().splitlines()
                 for line in lines:
+                    if line.startswith("#"):
+                        continue  # Skip comments
                     if line.startswith("/"):
                         ignore_patterns.append(line[1:])
                     else:
                         ignore_patterns.append(line)
                         ignore_patterns.append(line + "/*")
+                        ignore_patterns.append("**/" + line)
+                        ignore_patterns.append("**/" + line + "/*")
+                        print(f"Ignoring: {line}")
 
     def populate_files():
         for root, dirs, filenames in os.walk(path):
