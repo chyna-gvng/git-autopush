@@ -93,9 +93,8 @@ def monitor_directory(path="."):
                     add_and_push(file, commit_message)
 
                 for file in deleted_files:
-                    if not file.startswith("./.git"):
-                        commit_message = f"Deleted {os.path.basename(file)}"
-                        delete_and_push(file, commit_message)
+                    commit_message = f"Deleted {os.path.basename(file)}"
+                    delete_and_push(file, commit_message)
 
                 for file in modified_files:
                     commit_message = f"Updated {os.path.basename(file)}"
@@ -126,6 +125,10 @@ def monitor_directory(path="."):
         with lock:
             if file in deleted_files_set:
                 return  # Skip if file is already marked as deleted
+
+            if should_ignore(file):
+                deleted_files_set.add(file)  # Mark file as deleted to avoid repetition
+                return
 
             with open(os.devnull, "w") as devnull:
                 subprocess.run(["git", "rm", file], stdout=devnull, stderr=devnull)
