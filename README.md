@@ -43,5 +43,3 @@ To exit, press: `CTRL + C`
 - Ignore monitoring files or directories(start with '/') listed in 'gitignore'.  
 
 NOTE: Built & Tested on Arch
-
-
