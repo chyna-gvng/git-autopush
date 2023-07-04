@@ -72,6 +72,9 @@ def monitor_directory(path="."):
                             for pattern in f.read().splitlines()
                         ])
 
+                if should_ignore(root):  # Skip monitoring if root directory is ignored
+                    continue
+
                 for filename in filenames:
                     full_path = os.path.join(root, filename)
                     if not should_ignore(full_path):
