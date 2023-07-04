@@ -31,14 +31,10 @@ def monitor_directory(path="."):
         return False
 
     def populate_ignore_patterns():
-        for root, dirs, _ in os.walk(path):
-            ignore_path = os.path.join(root, ".gitignore")
-            if os.path.exists(ignore_path):
-                with open(ignore_path, "r") as f:
-                    ignore_patterns.extend([
-                        os.path.join(root, pattern)
-                        for pattern in f.read().splitlines()
-                    ])
+        ignore_path = os.path.join(path, ".gitignore")
+        if os.path.exists(ignore_path):
+            with open(ignore_path, "r") as f:
+                ignore_patterns.extend(f.read().splitlines())
 
     def populate_files():
         for root, dirs, filenames in os.walk(path):
