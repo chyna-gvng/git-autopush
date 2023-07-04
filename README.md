@@ -40,5 +40,6 @@ To exit, press: `CTRL + C`
 - Perform basic git operations; add, commit & push
 - Write dynamic commit messages based on filename & actions.
 - Actively monitor creation, deletion and modifaction of files & thereafter push the changes to github.
+- Ignore files 
 
 NOTE: Built & Tested on Arch
