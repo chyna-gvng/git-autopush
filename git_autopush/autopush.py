@@ -45,7 +45,12 @@ def monitor_directory(path="."):
                         ignore_patterns.append(line + "/*")
                         ignore_patterns.append("**/" + line)
                         ignore_patterns.append("**/" + line + "/*")
-                        print(f"Ignoring: {line}")
+                    print(f"Ignoring: {line}")
+        for root, dirs, filenames in os.walk(path):
+            for dir_name in dirs:
+                dir_path = os.path.join(root, dir_name)
+                if should_ignore(dir_path):
+                    print(f"Ignoring directory: {dir_path}")
 
     def populate_files():
         for root, dirs, filenames in os.walk(path):
