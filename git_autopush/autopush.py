@@ -30,11 +30,8 @@ def monitor_directory(path="."):
                 return True
         return False
 
-    def populate_files():
-        for root, dirs, filenames in os.walk(path):
-            if ".git" in dirs:
-                dirs.remove(".git")  # Skip the .git directory
-
+    def populate_ignore_patterns():
+        for root, dirs, _ in os.walk(path):
             ignore_path = os.path.join(root, ".gitignore")
             if os.path.exists(ignore_path):
                 with open(ignore_path, "r") as f:
@@ -42,6 +39,11 @@ def monitor_directory(path="."):
                         os.path.join(root, pattern)
                         for pattern in f.read().splitlines()
                     ])
+
+    def populate_files():
+        for root, dirs, filenames in os.walk(path):
+            if ".git" in dirs:
+                dirs.remove(".git")  # Skip the .git directory
 
             for filename in filenames:
                 full_path = os.path.join(root, filename)
@@ -63,14 +65,6 @@ def monitor_directory(path="."):
             for root, dirs, filenames in os.walk(path):
                 if ".git" in dirs:
                     dirs.remove(".git")  # Skip the .git directory
-
-                ignore_path = os.path.join(root, ".gitignore")
-                if os.path.exists(ignore_path):
-                    with open(ignore_path, "r") as f:
-                        ignore_patterns.extend([
-                            os.path.join(root, pattern)
-                            for pattern in f.read().splitlines()
-                        ])
 
                 if should_ignore(root):  # Skip monitoring if root directory is ignored
                     continue
@@ -148,6 +142,7 @@ def monitor_directory(path="."):
             file_hash = hashlib.md5(content).hexdigest()
         return file_hash
 
+    populate_ignore_patterns()
     populate_files()
 
     while True:
