@@ -87,11 +87,6 @@ def monitor_directory(path="."):
                 if files[filename] != current_files[filename]
             }
 
-            # Filter out files in the ignore_patterns list
-            added_files = filter_files(added_files)
-            deleted_files = filter_files(deleted_files)
-            modified_files = filter_files(modified_files)
-
             if added_files or deleted_files or modified_files:
                 for file in added_files:
                     commit_message = f"Created {os.path.basename(file)}"
@@ -117,24 +112,14 @@ def monitor_directory(path="."):
     def add_and_push(file, commit_message):
         with lock:
             with open(os.devnull, "w") as devnull:
-                result_add = subprocess.run(["git", "add", file], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                if result_add.returncode != 0:
-                    print(result_add.stderr.decode("utf-8"))
-                    print(f"{RED}Failed to add {WHITE}{file}{WHITE}")
-                    return
+                subprocess.run(["git", "add", file], stdout=devnull, stderr=devnull)
+                subprocess.run(["git", "commit", "-m", commit_message], stdout=devnull, stderr=devnull)
+                result = subprocess.run(["git", "push"], capture_output=True, text=True)
 
-                result_commit = subprocess.run(["git", "commit", "-m", commit_message], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                if result_commit.returncode != 0:
-                    print(result_commit.stderr.decode("utf-8"))
-                    print(f"{RED}Failed to commit {WHITE}{file}{WHITE}")
-                    return
+                print(f"{YELLOW}Successfully pushed {WHITE}{file}{WHITE}")
 
-                result_push = subprocess.run(["git", "push"], capture_output=True, text=True)
-                if result_push.returncode == 0:
-                    print(f"{YELLOW}Successfully pushed {WHITE}{file}{WHITE}")
-                else:
-                    print(result_push.stderr)
-                    print(f"{RED}Failed to push {WHITE}{file}{WHITE}")
+                if result.returncode != 0:
+                    print(result.stderr)
 
     def delete_and_push(file, commit_message):
         with lock:
@@ -146,25 +131,15 @@ def monitor_directory(path="."):
                 return
 
             with open(os.devnull, "w") as devnull:
-                result_rm = subprocess.run(["git", "rm", file], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                if result_rm.returncode != 0:
-                    print(result_rm.stderr.decode("utf-8"))
-                    print(f"{RED}Failed to remove {WHITE}{file}{WHITE}")
-                    return
+                subprocess.run(["git", "rm", file], stdout=devnull, stderr=devnull)
+                subprocess.run(["git", "commit", "-m", commit_message], stdout=devnull, stderr=devnull)
+                result = subprocess.run(["git", "push"], capture_output=True, text=True)
 
-                result_commit = subprocess.run(["git", "commit", "-m", commit_message], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                if result_commit.returncode != 0:
-                    print(result_commit.stderr.decode("utf-8"))
-                    print(f"{RED}Failed to commit {WHITE}{file}{WHITE}")
-                    return
-
-                result_push = subprocess.run(["git", "push"], capture_output=True, text=True)
-                if result_push.returncode == 0:
+                if result.returncode == 0:
                     print(f"{YELLOW}Successfully deleted {RED}{file}{WHITE}")
                     deleted_files_set.add(file)  # Mark file as deleted to avoid repetition
                 else:
-                    print(result_push.stderr)
-                    print(f"{RED}Failed to push {WHITE}{file}{WHITE}")
+                    print(result.stderr)
 
     def hash_file(file):
         # Generate the hash of the file content
@@ -172,9 +147,6 @@ def monitor_directory(path="."):
             content = f.read()
             file_hash = hashlib.md5(content).hexdigest()
         return file_hash
-
-    def filter_files(files):
-        return [file for file in files if not should_ignore(file)]
 
     populate_files()
 
