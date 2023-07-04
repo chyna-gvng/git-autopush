@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="git-autopush",
-    version="0.1.5",
+    version="0.1.6",
     author="Chyna",
     author_email="angoyewally@gmail.com",
     description="Automates git functions: git add, git commit, and git push",
