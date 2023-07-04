@@ -87,11 +87,6 @@ def monitor_directory(path="."):
                 if files[filename] != current_files[filename]
             }
 
-            # Filter out files in the ignore_patterns list
-            added_files = filter_files(added_files)
-            deleted_files = filter_files(deleted_files)
-            modified_files = filter_files(modified_files)
-
             if added_files or deleted_files or modified_files:
                 for file in added_files:
                     commit_message = f"Created {os.path.basename(file)}"
@@ -153,9 +148,6 @@ def monitor_directory(path="."):
             file_hash = hashlib.md5(content).hexdigest()
         return file_hash
 
-    def filter_files(files):
-        return [file for file in files if not should_ignore(file)]
-
     populate_files()
 
     while True:
@@ -166,3 +158,4 @@ def monitor_directory(path="."):
 
 if __name__ == "__main__":
     monitor_directory()
+
